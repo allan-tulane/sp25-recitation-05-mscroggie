@@ -1,3 +1,8 @@
+# recitation-05
+
+from collections import defaultdict
+
+
 import random, time
 import tabulate
 
@@ -7,28 +12,56 @@ def ssort(L):
         return(L)
     else:
         m = L.index(min(L))
-        print('selecting minimum %s' % L[m])       
+        #print('selecting minimum %s' % L[m])
         L[0], L[m] = L[m], L[0]
-        print('recursively sorting L=%s\n' % L[1:])
-        return [L[0]] + selection_sort(L[1:])
-        
+        #print('recursively sorting L=%s\n' % L[1:])
+        return [L[0]] + ssort(L[1:])
+
 def qsort(a, pivot_fn):
-    ## TO DO
-    pass
-    
+    l = []
+    r = []
+    if len(a) == 0:
+        return a
+    else:
+
+        for value in a:
+            if value <= pivot_fn:
+                l.append(value)
+            elif value >= pivot_fn:
+                r.append(value)
+            L, R = qsort(l, pivot_fn), qsort(r, pivot_fn)
+        return L.append(value).append(R)
+def qsort_curry(a):
+    def sort(pivot_fn):
+        l = []
+        r = []
+        def step_a(a):
+            if len(a)==0:
+                return a
+            else:
+                for value in a:
+                    if a <= pivot_fn:
+                        l.append(value)
+                    elif a >= pivot_fn:
+                        r.append(value)
+                L, R = qsort(l, pivot_fn), qsort(r, pivot_fn)
+            return L.append(value).append(R)
+        return step_a
+    return sort
+
 def time_search(sort_fn, mylist):
     """
     Return the number of milliseconds to run this
     sort function on this list.
 
     Note 1: `sort_fn` parameter is a function.
-    Note 2: time.time() returns the current time in seconds. 
+    Note 2: time.time() returns the current time in seconds.
     You'll have to multiple by 1000 to get milliseconds.
 
     Params:
       sort_fn.....the search function
       mylist......the list to search
-      key.........the search key 
+      key.........the search key
 
     Returns:
       the number of milliseconds it takes to run this
@@ -49,10 +82,10 @@ def compare_sort(sizes=[100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 10
       indicating the number of milliseconds it takes
       for each method to run on each value of n
     """
-    ### TODO - sorting algorithms for comparison
-    qsort_fixed_pivot = # 
-    qsort_random_pivot = #
-    tim_sort = #
+
+    qsort_fixed_pivot = qsort_curry(sizes[0])
+    qsort_random_pivot = qsort_curry(sizes[random.randrange(len(sizes))])
+    tim_sort = sorted
     result = []
     for size in sizes:
         # create list in ascending order
@@ -62,13 +95,14 @@ def compare_sort(sizes=[100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 10
         result.append([
             len(mylist),
             time_search(qsort_fixed_pivot, mylist),
-            time_search(qsort_random_pivot, mylist),
+            time_search(qsort_fixed_pivot, mylist),
         ])
     return result
     ###
 
 def print_results(results):
     """ change as needed for comparisons """
+    print("/n")
     print(tabulate.tabulate(results,
                             headers=['n', 'qsort-fixed-pivot', 'qsort-random-pivot'],
                             floatfmt=".3f",
